@@ -1,7 +1,7 @@
 const { ethers } = require("hardhat")
 const { expect, assert } = require("chai")
 const { time } = require("./utilities")
-
+var balance_tree_1 = require("./utilities/balance-tree");
 
 const ZERO_BYTES32 = '0x0000000000000000000000000000000000000000000000000000000000000000'
 describe("WRADrop", function () {
@@ -302,6 +302,80 @@ describe("WRADrop", function () {
             }
             assert.equal(err.toString(), 'Error: VM Exception while processing transaction: revert MerkleDistributor: Invalid proof.')
         })
+
+        it('should claim success', async function () {
+            this.wraDrop = await this.WRADrop.deploy(this.wra.address)
+            await this.wraDrop.deployed()
+            await this.wraDrop.openClaim();
+
+            await this.wra.connect(this.minter).transfer(this.wraDrop.address, "200000")
+            expect(await this.wra.balanceOf(this.wraDrop.address)).to.equal("200000")
+
+            tree = new balance_tree_1["default"]([
+                { account: this.alice.address, amount: 100 },
+                { account: this.bob.address, amount: 101 },
+            ]);
+            let hexRoot = tree.getHexRoot();
+            await this.wraDrop.setMerkleRoot(hexRoot);
+            let proof0 = tree.getProof(0, this.alice.address, 100);
+            await this.wraDrop.claim(0, this.alice.address, 100, proof0)
+            expect(await this.wra.balanceOf(this.alice.address)).to.equal("100")
+
+        })
+
+        it('should not claim multi times', async function () {
+            this.wraDrop = await this.WRADrop.deploy(this.wra.address)
+            await this.wraDrop.deployed()
+            await this.wraDrop.openClaim();
+
+            await this.wra.connect(this.minter).transfer(this.wraDrop.address, "200000")
+            expect(await this.wra.balanceOf(this.wraDrop.address)).to.equal("200000")
+
+            tree = new balance_tree_1["default"]([
+                { account: this.alice.address, amount: 100 },
+                { account: this.bob.address, amount: 101 },
+            ]);
+            let hexRoot = tree.getHexRoot();
+            await this.wraDrop.setMerkleRoot(hexRoot);
+            let proof0 = tree.getProof(0, this.alice.address, 100);
+            await this.wraDrop.claim(0, this.alice.address, 100, proof0)
+            expect(await this.wra.balanceOf(this.alice.address)).to.equal("100")
+
+            err = ""
+            try {
+                await this.wraDrop.claim(0, this.alice.address, 100, proof0)
+            } catch (e) {
+                err = e
+            }
+            assert.equal(err.toString(), 'Error: VM Exception while processing transaction: revert claim: already claimed.')
+        })
+
+
+        it('should claim success after set second roothash', async function () {
+            this.wraDrop = await this.WRADrop.deploy(this.wra.address)
+            await this.wraDrop.deployed()
+            await this.wraDrop.openClaim();
+
+            await this.wra.connect(this.minter).transfer(this.wraDrop.address, "200000")
+            expect(await this.wra.balanceOf(this.wraDrop.address)).to.equal("200000")
+
+            tree = new balance_tree_1["default"]([
+                { account: this.alice.address, amount: 100 },
+                { account: this.bob.address, amount: 101 },
+            ]);
+            let hexRoot = tree.getHexRoot();
+            await this.wraDrop.setMerkleRoot(hexRoot);
+            let proof0 = tree.getProof(0, this.alice.address, 100);
+            await this.wraDrop.claim(0, this.alice.address, 100, proof0)
+            expect(await this.wra.balanceOf(this.alice.address)).to.equal("100")
+
+            await this.wraDrop.setMerkleRoot(hexRoot);
+            proof0 = tree.getProof(0, this.alice.address, 100);
+            await this.wraDrop.claim(0, this.alice.address, 100, proof0)
+            expect(await this.wra.balanceOf(this.alice.address)).to.equal("200")
+        })
+
+
 
     })
 
