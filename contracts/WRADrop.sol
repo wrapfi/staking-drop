@@ -2,7 +2,6 @@ pragma solidity 0.6.12;
 
 // SPDX-License-Identifier: GPL-3.0-only
 
-import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/cryptography/MerkleProof.sol";
@@ -32,7 +31,6 @@ contract WRADrop is Ownable {
     address public WRA;
     bytes32 public merkleRoot;
     uint256 public claimRound;
-    bool public claimOpen;
 
     // All pools.
     PoolInfo[] public poolInfo;
@@ -145,9 +143,6 @@ contract WRADrop is Ownable {
     }
 
     function claimReward(uint256 _pid) public {
-        PoolInfo memory pool = poolInfo[_pid];
-        require(pool.emergencySwitch, "claimReward: emergencySwitch closed");
-
         deposit(_pid, 0);
     }
 
@@ -167,13 +162,8 @@ contract WRADrop is Ownable {
         user.rewardDebt = 0;
     }
 
-    function getMultiplier(uint256 _from, uint256 _to) public pure returns (uint256) {
-        return _to.sub(_from);
-    }
-
     function getPoolReward(uint256 _from, uint256 _to, uint256 _rewardPerBlock, uint256 _leftReward) public pure returns (uint) {
-        uint256 multiplier = getMultiplier(_from, _to);
-        uint256 amount = multiplier.mul(_rewardPerBlock);
+        uint256 amount = _to.sub(_from).mul(_rewardPerBlock);
         return _leftReward < amount ? _leftReward : amount;
     }
 
@@ -198,44 +188,9 @@ contract WRADrop is Ownable {
         return poolInfo.length;
     }
 
-    function getPoolStakeTokenAddress(uint _pid) public view returns (address) {
-        PoolInfo memory pool = poolInfo[_pid];
-        return address(pool.stakeToken);
-    }
-
-    function getPoolStakeTokenSupply(uint _pid) public view returns (uint256) {
-        PoolInfo memory pool = poolInfo[_pid];
-        return pool.stakeToken.balanceOf(address(this));
-    }
-
-    function getPoolStartBlock(uint _pid) public view returns (uint256) {
-        PoolInfo memory pool = poolInfo[_pid];
-        return pool.startBlock;
-    }
-
-    function getPoolRewardPerBlock(uint _pid) public view returns (uint256) {
-        PoolInfo memory pool = poolInfo[_pid];
-        return pool.rewardPerBlock;
-    }
-
-    function getPoolTotalReward(uint _pid) public view returns (uint256) {
-        PoolInfo memory pool = poolInfo[_pid];
-        return pool.totalReward;
-    }
-
-
-
     function setMerkleRoot(bytes32 _merkleRoot) public onlyOwner {
         merkleRoot = _merkleRoot;
         claimRound = claimRound.add(1);
-    }
-
-    function openClaim() public onlyOwner {
-        claimOpen = true;
-    }
-
-    function closeClaim() public onlyOwner {
-        claimOpen = false;
     }
 
     function isClaimed(uint256 index) public view returns (bool) {
@@ -254,7 +209,6 @@ contract WRADrop is Ownable {
 
     function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof) external {
         require(!isClaimed(index), 'claim: already claimed.');
-        require(claimOpen, "claim: claim not open");
 
         // Verify the merkle proof.
         bytes32 node = keccak256(abi.encodePacked(index, account, amount));
