@@ -59,7 +59,7 @@ contract WRADrop is Ownable {
         uint256 _rewardPerBlock, 
         uint256 _totalReward
     ) public onlyOwner {
-        require(_totalReward > _rewardPerBlock, "add: totalReward must be greater than rewardPerBlock");
+        require(_totalReward > _rewardPerBlock, "total < reward");
 
         uint256 lastRewardBlock = block.number > _startBlock ? block.number : _startBlock;
         poolInfo.push(PoolInfo({
@@ -148,7 +148,7 @@ contract WRADrop is Ownable {
 
     function safeTransferReward(address _to, uint256 _amount) internal {
         uint256 bal = IERC20(WRA).balanceOf(address(this));
-        require(bal >= _amount, "safeTransferReward: balance not enough");
+        require(bal >= _amount, "balance not enough");
         IERC20(WRA).safeTransfer(_to, _amount);
     }
 
@@ -167,10 +167,6 @@ contract WRADrop is Ownable {
         return _leftReward < amount ? _leftReward : amount;
     }
 
-    function getUserStakedAmount(uint _pid, address _user) public view returns (uint256) {
-        UserInfo memory user = userInfo[_pid][_user];
-        return user.amount;
-    }
 
     function getUserClaimableReward(uint _pid, address _user) public view returns (uint256) {
         PoolInfo memory pool = poolInfo[_pid];
@@ -208,15 +204,15 @@ contract WRADrop is Ownable {
     }
 
     function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof) external {
-        require(!isClaimed(index), 'claim: already claimed.');
+        require(!isClaimed(index), 'has claimed');
 
         // Verify the merkle proof.
         bytes32 node = keccak256(abi.encodePacked(index, account, amount));
-        require(MerkleProof.verify(merkleProof, merkleRoot, node), 'MerkleDistributor: Invalid proof.');
+        require(MerkleProof.verify(merkleProof, merkleRoot, node), 'Invalid proof');
 
         // Mark it claimed and send the token.
         _setClaimed(index);
-        require(IERC20(WRA).transfer(account, amount), 'MerkleDistributor: Transfer failed.');
+        require(IERC20(WRA).transfer(account, amount), 'Tx failed');
 
         emit Claimed(claimRound, index, account, amount);
     }

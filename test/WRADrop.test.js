@@ -293,7 +293,6 @@ describe("WRADrop", function () {
         it('fails for empty proof', async function () {
             this.wraDrop = await this.WRADrop.deploy(this.wra.address)
             await this.wraDrop.deployed()
-            await this.wraDrop.openClaim();
             err = ""
             try {
                 await this.wraDrop.claim(0, this.bob.address, 10, [])
@@ -306,7 +305,6 @@ describe("WRADrop", function () {
         it('should claim success', async function () {
             this.wraDrop = await this.WRADrop.deploy(this.wra.address)
             await this.wraDrop.deployed()
-            await this.wraDrop.openClaim();
 
             await this.wra.connect(this.minter).transfer(this.wraDrop.address, "200000")
             expect(await this.wra.balanceOf(this.wraDrop.address)).to.equal("200000")
@@ -326,7 +324,6 @@ describe("WRADrop", function () {
         it('should not claim multi times', async function () {
             this.wraDrop = await this.WRADrop.deploy(this.wra.address)
             await this.wraDrop.deployed()
-            await this.wraDrop.openClaim();
 
             await this.wra.connect(this.minter).transfer(this.wraDrop.address, "200000")
             expect(await this.wra.balanceOf(this.wraDrop.address)).to.equal("200000")
@@ -354,7 +351,6 @@ describe("WRADrop", function () {
         it('should claim success after set second roothash', async function () {
             this.wraDrop = await this.WRADrop.deploy(this.wra.address)
             await this.wraDrop.deployed()
-            await this.wraDrop.openClaim();
 
             await this.wra.connect(this.minter).transfer(this.wraDrop.address, "200000")
             expect(await this.wra.balanceOf(this.wraDrop.address)).to.equal("200000")
