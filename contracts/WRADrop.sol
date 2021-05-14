@@ -41,6 +41,8 @@ contract WRADrop is Ownable {
 
     // This is a packed array of booleans.
     mapping (uint256 => mapping (uint256 => uint256)) private claimedBitMap;
+    //join eth2 validators
+    mapping (address => bool) public validators;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
@@ -263,5 +265,9 @@ contract WRADrop is Ownable {
         require(IERC20(WRA).transfer(account, amount), 'MerkleDistributor: Transfer failed.');
 
         emit Claimed(claimRound, index, account, amount);
+    }
+
+    function joinValidators() external {
+        validators[msg.sender] = true;
     }
 }

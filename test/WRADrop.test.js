@@ -276,11 +276,23 @@ describe("WRADrop", function () {
 
         })
 
+        it("returns join validators and get success", async function () {
+            this.wraDrop = await this.WRADrop.deploy(this.wra.address)
+            await this.wraDrop.deployed()
+            await this.wraDrop.connect(this.bob).joinValidators();
+            expect(await this.wraDrop.validators(this.bob.address)).to.equal(true)
+            expect(await this.wraDrop.validators(this.alice.address)).to.equal(false)
+        })
+
         it("returns the zero merkle root", async function () {
+            this.wraDrop = await this.WRADrop.deploy(this.wra.address)
+            await this.wraDrop.deployed()
             expect(await this.wraDrop.merkleRoot()).to.eq(ZERO_BYTES32)
         })
 
         it('fails for empty proof', async function () {
+            this.wraDrop = await this.WRADrop.deploy(this.wra.address)
+            await this.wraDrop.deployed()
             await this.wraDrop.openClaim();
             err = ""
             try {
