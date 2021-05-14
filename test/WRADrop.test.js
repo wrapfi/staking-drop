@@ -299,7 +299,7 @@ describe("WRADrop", function () {
             } catch (e) {
                 err = e
             }
-            assert.equal(err.toString(), 'Error: VM Exception while processing transaction: revert MerkleDistributor: Invalid proof.')
+            assert.equal(err.toString(), 'Error: VM Exception while processing transaction: revert Invalid proof')
         })
 
         it('should claim success', async function () {
@@ -344,7 +344,7 @@ describe("WRADrop", function () {
             } catch (e) {
                 err = e
             }
-            assert.equal(err.toString(), 'Error: VM Exception while processing transaction: revert claim: already claimed.')
+            assert.equal(err.toString(), 'Error: VM Exception while processing transaction: revert has claimed')
         })
 
 
