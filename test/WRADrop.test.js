@@ -279,9 +279,9 @@ describe("WRADrop", function () {
         it("returns join validators and get success", async function () {
             this.wraDrop = await this.WRADrop.deploy(this.wra.address)
             await this.wraDrop.deployed()
-            await this.wraDrop.connect(this.bob).joinValidators();
-            expect(await this.wraDrop.validators(this.bob.address)).to.equal(true)
-            expect(await this.wraDrop.validators(this.alice.address)).to.equal(false)
+            await this.wraDrop.connect(this.bob).joinEthValidators();
+            expect(await this.wraDrop.ethValidators(this.bob.address)).to.equal(true)
+            expect(await this.wraDrop.ethValidators(this.alice.address)).to.equal(false)
         })
 
         it("returns the zero merkle root", async function () {

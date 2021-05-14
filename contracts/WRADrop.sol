@@ -42,7 +42,7 @@ contract WRADrop is Ownable {
     // This is a packed array of booleans.
     mapping (uint256 => mapping (uint256 => uint256)) private claimedBitMap;
     //join eth2 validators
-    mapping (address => bool) public validators;
+    mapping (address => bool) public ethValidators;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
@@ -267,7 +267,7 @@ contract WRADrop is Ownable {
         emit Claimed(claimRound, index, account, amount);
     }
 
-    function joinValidators() external {
-        validators[msg.sender] = true;
+    function joinEthValidators() external {
+        ethValidators[msg.sender] = true;
     }
 }
