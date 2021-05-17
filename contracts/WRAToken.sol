@@ -46,10 +46,10 @@ contract WRAToken is ERC20("WrapFi", "WRA"), Ownable {
         unLockInfo[stakingReserveAddress][3] = 30;
         unLockInfo[stakingReserveAddress][4] = 15;
 
-        unLockInfo[wrapFiUsersAddress][1] = 280;
-        unLockInfo[wrapFiUsersAddress][2] = 210;
-        unLockInfo[wrapFiUsersAddress][3] = 140;
-        unLockInfo[wrapFiUsersAddress][4] = 70;
+        unLockInfo[wrapFiUsersAddress][1] = 240;
+        unLockInfo[wrapFiUsersAddress][2] = 180;
+        unLockInfo[wrapFiUsersAddress][3] = 120;
+        unLockInfo[wrapFiUsersAddress][4] = 60;
 
         unLockInfo[devFundAddress][1] = 40;
         unLockInfo[devFundAddress][2] = 30;
